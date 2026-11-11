@@ -31,11 +31,14 @@ $app->get('/', function (ServerRequestInterface $request, ResponseInterface $res
     return $response->withHeader('Content-Type', 'text/html; charset=utf-8');
 });
 
-$app->get('/health', function (ServerRequestInterface $request, ResponseInterface $response) use ($settings): ResponseInterface {
+$app->get('/health', function (ServerRequestInterface $request, ResponseInterface $response) use ($settings, $database): ResponseInterface {
+    $stats = $database->catalogStats();
+
     return Json::response($response, [
         'status' => 'ok',
         'environment' => $settings['app_env'],
         'database' => 'sqlite',
+        'catalog_total' => $stats['total'],
     ]);
 });
 

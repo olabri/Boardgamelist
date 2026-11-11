@@ -243,7 +243,7 @@ final class Database
 
         $statement = $this->connection->prepare(
             'SELECT * FROM games WHERE ' . implode(' AND ', $conditions)
-            . ' ORDER BY rank IS NULL, rank ASC, average_rating DESC, name ASC'
+            . ' ORDER BY average_rating DESC, rank IS NULL, rank ASC, name ASC'
             . ' LIMIT :limit OFFSET :offset'
         );
         if ($maxWeight !== null) {

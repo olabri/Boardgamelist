@@ -43,9 +43,11 @@ ddev exec composer install
 
 Open the URL printed by `ddev start`.
 
-The SQLite file is created at `storage/database.sqlite` on first request.
+The SQLite file is created at `storage/database.sqlite` on first request. Relative `DB_PATH` values are resolved from the project root.
 
 For a Git deployment, configure the web server document root as `public/` and enable Apache overrides/rewrite rules. The included `public/.htaccess` routes `/api/*` and other non-file paths through Slim’s `public/index.php`.
+
+The SQLite database is intentionally excluded from Git. A fresh deployment therefore starts with an empty database. Copy `storage/database.sqlite` to the deployed project separately, or import the BGG ranks dump and enrich it there. Ensure the web-server user can read and write the `storage/` directory and database file.
 
 ## Endpoints
 
