@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Boardgamelist</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, ui-sans-serif, system-ui, sans-serif; background: #10131a; color: #edf1f7; }
+    body { margin: 0; background: radial-gradient(circle at top right, #263d55, #10131a 48%); min-height: 100vh; }
+    main { width: min(1180px, calc(100% - 32px)); margin: 0 auto; padding: 48px 0 72px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
+    h1 { margin: 0; font-size: clamp(2rem, 5vw, 4rem); letter-spacing: -0.06em; }
+    .lede { color: #aab8c9; max-width: 520px; line-height: 1.6; }
+    .panel { background: rgba(20, 26, 36, .86); border: 1px solid #334256; border-radius: 18px; padding: 20px; box-shadow: 0 18px 60px rgba(0,0,0,.2); }
+    form { display: grid; grid-template-columns: repeat(4, minmax(120px, 1fr)) auto; gap: 14px; align-items: end; }
+    label { display: grid; gap: 7px; color: #aab8c9; font-size: .85rem; }
+    input { width: 100%; box-sizing: border-box; border: 1px solid #4a5b72; border-radius: 9px; background: #151c27; color: #fff; padding: 11px 12px; font: inherit; }
+    button { border: 0; border-radius: 9px; background: #74b9ff; color: #08111f; padding: 12px 20px; font-weight: 800; cursor: pointer; }
+    button:hover { background: #9bcfff; }
+    #status { color: #aab8c9; min-height: 24px; margin: 20px 2px; }
+    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 16px; }
+    .card { overflow: hidden; background: #18212e; border: 1px solid #334256; border-radius: 15px; }
+    .card img { width: 100%; height: 180px; object-fit: cover; background: #273447; }
+    .card-body { padding: 16px; }
+    .card-actions { display: flex; align-items: center; justify-content: flex-end; gap: 10px; margin-top: 14px; }
+    .title-link { color: inherit; text-decoration: none; }
+    .title-link:hover { color: #74b9ff; text-decoration: underline; }
+    .enrich-button { min-width: 0; padding: 6px 9px; font-size: 1rem; line-height: 1; }
+    h2 { font-size: 1.1rem; margin: 0 0 10px; }
+    .facts { display: flex; flex-wrap: wrap; gap: 7px; color: #c8d5e5; font-size: .85rem; }
+    .fact { background: #26364a; border-radius: 999px; padding: 5px 9px; }
+    .fact.core { border-left: 3px solid #74b9ff; }
+    .fact.detail { border-left: 3px solid #f6c177; }
+    .legend { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 16px; color: #aab8c9; font-size: .82rem; }
+    .legend span { border-radius: 999px; padding: 5px 9px; background: #26364a; }
+    .legend .core { border-left: 3px solid #74b9ff; }
+    .legend .detail { border-left: 3px solid #f6c177; }
+    .pagination { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 24px; }
+    .pagination button { min-width: 100px; padding: 9px 14px; }
+    .pagination button:disabled { opacity: .4; cursor: not-allowed; }
+    .page-number { color: #aab8c9; min-width: 70px; text-align: center; }
+    .options { display: flex; flex-wrap: wrap; gap: 14px 22px; margin-top: 16px; }
+    .check { display: flex; align-items: center; gap: 8px; color: #aab8c9; font-size: .85rem; padding: 8px 10px; border: 1px solid transparent; border-radius: 9px; cursor: pointer; transition: background .15s ease, border-color .15s ease, color .15s ease; }
+    .check input { width: auto; accent-color: #74b9ff; }
+    .check:has(input:checked) { color: #f5f9ff; background: rgba(116, 185, 255, .16); border-color: #74b9ff; box-shadow: 0 0 0 2px rgba(116, 185, 255, .08); }
+    .filter-detail { border: 1px solid rgba(246, 193, 119, .65); border-radius: 10px; padding: 8px 10px; }
+    .filter-detail::after { content: 'enriched'; color: #f6c177; font-size: .72rem; letter-spacing: .03em; text-transform: uppercase; }
+    .muted { color: #8c9bb0; }
+    @media (max-width: 800px) { form { grid-template-columns: repeat(2, 1fr); } form button { grid-column: span 2; } header { display: block; } }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div>
+        <p class="muted">BoardGameGeek catalog</p>
+        <h1>Find your next game.</h1>
+      </div>
+      <p class="lede">A local catalog for lighter, highly rated games that work well at your table. Results are based on the locally imported and enriched subset.</p>
+    </header>
+
+    <section class="panel">
+      <form id="filters">
+        <label class="filter-detail" title="Enriched from the BGG XML API">Weight below <input name="max_weight" type="number" min="0.1" max="5" step="0.1" value="3" placeholder="Any"></label>
+        <label>Rating above <input name="min_rating" type="number" min="0" max="10" step="0.1" value="6.6"></label>
+        <label class="filter-detail" title="Enriched from the BGG XML API">Players <input name="players" type="number" min="1" max="99" step="1" value="2"></label>
+        <label>Results <input name="limit" type="number" min="1" max="100" step="1" value="50"></label>
+        <label>Published from <input name="min_year" type="number" min="1900" max="2100" step="1" placeholder="Any"></label>
+        <label>Published to <input name="max_year" type="number" min="1900" max="2100" step="1" placeholder="Any"></label>
+        <label>Rated by at least <input name="min_users_rated" type="number" min="0" step="100" value="1000"></label>
+        <button type="submit">Find games</button>
+      </form>
+      <div class="options">
+        <label class="check"><input name="include_compilations" type="checkbox"> Include compilations / Big Box</label>
+        <label class="check"><input name="include_implementations" type="checkbox"> Include implementations / editions</label>
+        <label class="check"><input name="include_accessories" type="checkbox"> Include accessories</label>
+      </div>
+      <div class="legend">
+        <span class="core">Core: rank, rating, year, rating count</span>
+        <span class="detail">Enriched: weight, players, play time</span>
+      </div>
+    </section>
+
+    <p id="status">Loading the local catalog…</p>
+    <section id="results" class="grid" aria-live="polite"></section>
+    <nav class="pagination" aria-label="Catalog pagination">
+      <button id="previous" type="button" disabled>Previous</button>
+      <span id="page-number" class="page-number">Page 1</span>
+      <button id="next" type="button" disabled>Next</button>
+    </nav>
+  </main>
+
+  <script>
+    const form = document.querySelector('#filters');
+    const status = document.querySelector('#status');
+    const results = document.querySelector('#results');
+    const previous = document.querySelector('#previous');
+    const next = document.querySelector('#next');
+    const pageNumber = document.querySelector('#page-number');
+    let offset = 0;
+
+    function escapeHtml(value) {
+      return String(value ?? '').replace(/[&<>'"]/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[character]));
+    }
+
+    function card(game) {
+      const image = game.image || game.thumbnail || '';
+      const players = game.players.min == null && game.players.max == null
+        ? 'Players unknown'
+        : `${game.players.min ?? '?'}–${game.players.max ?? '?'} players`;
+      const kinds = [
+        game.is_expansion ? 'Expansion' : '',
+        game.is_compilation ? 'Big Box / compilation' : '',
+        game.is_implementation ? 'Edition / implementation' : '',
+        game.is_accessory ? 'Accessory' : ''
+      ].filter(Boolean);
+      return `<article class="card">
+        ${image ? `<img src="${escapeHtml(image)}" alt="${escapeHtml(game.name)}">` : '<div style="height:180px"></div>'}
+        <div class="card-body">
+          <h2><a class="title-link" href="${escapeHtml(game.bgg_url)}" target="_blank" rel="noreferrer">${escapeHtml(game.name)}</a></h2>
+          <div class="facts">
+            ${kinds.map(kind => `<span class="fact">${escapeHtml(kind)}</span>`).join('')}
+            <span class="fact core">Rating ${escapeHtml(game.rating)}</span>
+            <span class="fact detail">Weight ${escapeHtml(game.weight ?? 'unknown')}</span>
+            <span class="fact detail">${escapeHtml(players)}</span>
+            <span class="fact core">Published ${escapeHtml(game.year_published ?? 'unknown')}</span>
+            <span class="fact core">${escapeHtml(game.users_rated ?? 0)} ratings</span>
+          </div>
+          <p class="muted">BGG rank ${escapeHtml(game.rank ?? 'unranked')}</p>
+          <div class="card-actions">
+            ${game.needs_enrichment ? `<button class="enrich-button" type="button" data-enrich-id="${escapeHtml(game.id)}" title="Enrich details from BGG" aria-label="Enrich ${escapeHtml(game.name)} from BGG">✦</button>` : ''}
+          </div>
+        </div>
+      </article>`;
+    }
+
+    async function loadGames(event) {
+      event?.preventDefault();
+      if (event?.type === 'submit') offset = 0;
+      const query = new URLSearchParams(new FormData(form));
+      query.set('offset', offset);
+      status.textContent = 'Loading…';
+      try {
+        const response = await fetch(`/api/catalog?${query}`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'Request failed');
+        results.innerHTML = payload.data.map(card).join('');
+        const meta = payload.meta;
+        const page = Math.floor(meta.offset / meta.limit) + 1;
+        pageNumber.textContent = `Page ${page}`;
+        previous.disabled = meta.offset === 0;
+        next.disabled = !meta.has_more;
+        status.textContent = meta.catalog_total === 0
+          ? 'The catalog is empty. Import the BGG ranks CSV first.'
+          : `${meta.count} local matches · ${meta.catalog_enriched} of ${meta.catalog_total} catalog games have weight/player details. This is not a complete live BGG listing.`;
+        if (meta.count === 0 && meta.catalog_enriched < meta.catalog_total) {
+          status.textContent += ' Enrich game details through the BGG API to apply these filters.';
+        }
+      } catch (error) {
+        status.textContent = error.message;
+      }
+    }
+
+    form.addEventListener('submit', loadGames);
+    results.addEventListener('click', async event => {
+      const button = event.target.closest('[data-enrich-id]');
+      if (!button) return;
+
+      button.disabled = true;
+      status.textContent = 'Enriching game details from BGG…';
+      try {
+        const response = await fetch(`/api/games/${button.dataset.enrichId}?refresh=true`);
+        const payload = await response.json();
+        if (!response.ok) throw new Error(payload.error || 'Enrichment failed');
+        await loadGames();
+      } catch (error) {
+        button.disabled = false;
+        status.textContent = error.message;
+      }
+    });
+    previous.addEventListener('click', () => {
+      const limit = Number(form.elements.limit.value) || 50;
+      offset = Math.max(0, offset - limit);
+      loadGames();
+    });
+    next.addEventListener('click', () => {
+      const limit = Number(form.elements.limit.value) || 50;
+      offset += limit;
+      loadGames();
+    });
+    loadGames();
+  </script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+{
+  "lsp": {
+    "phpactor": {
+      "binary": {
+        "path": "ddev",
+        "arguments": ["exec", "phpactor", "language-server"]
+      }
+    }
+  },
+  "languages": {
+    "PHP": {
+      "language_servers": ["phpactor"]
+    },
+    "Blade": {
+      "language_servers": ["phpactor"]
+    }
+  }
+}
