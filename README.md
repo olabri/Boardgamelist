@@ -45,6 +45,8 @@ Open the URL printed by `ddev start`.
 
 The SQLite file is created at `storage/database.sqlite` on first request.
 
+For a Git deployment, configure the web server document root as `public/` and enable Apache overrides/rewrite rules. The included `public/.htaccess` routes `/api/*` and other non-file paths through Slim’s `public/index.php`.
+
 ## Endpoints
 
 `GET /health` checks that the application is running.

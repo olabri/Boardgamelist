@@ -1,0 +1,8 @@
+DirectoryIndex index.php
+
+RewriteEngine On
+
+# Let real assets be served directly, but send application routes to Slim.
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteRule ^ index.php [QSA,L]
