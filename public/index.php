@@ -54,9 +54,10 @@ $app->get('/api/catalog', function (ServerRequestInterface $request, ResponseInt
     $players = max(1, min(99, (int) ($params['players'] ?? 2)));
     $limit = max(1, min(100, (int) ($params['limit'] ?? 50)));
     $offset = max(0, (int) ($params['offset'] ?? 0));
-    $minYear = queryInteger($params['min_year'] ?? null);
+    $minYear = queryInteger($params['min_year'] ?? 2025);
     $maxYear = queryInteger($params['max_year'] ?? null);
     $minUsersRated = max(0, (int) ($params['min_users_rated'] ?? 1000));
+    $maxPlayers = queryInteger($params['max_players'] ?? null);
     $includeCompilations = filter_var($params['include_compilations'] ?? false, FILTER_VALIDATE_BOOLEAN);
     $includeImplementations = filter_var($params['include_implementations'] ?? false, FILTER_VALIDATE_BOOLEAN);
     $includeAccessories = filter_var($params['include_accessories'] ?? false, FILTER_VALIDATE_BOOLEAN);
@@ -73,7 +74,8 @@ $app->get('/api/catalog', function (ServerRequestInterface $request, ResponseInt
         $minUsersRated,
         $includeCompilations,
         $includeImplementations,
-        $includeAccessories
+        $includeAccessories,
+        $maxPlayers
     );
     $hasMore = count($games) > $limit;
     $games = array_slice($games, 0, $limit);
@@ -88,6 +90,7 @@ $app->get('/api/catalog', function (ServerRequestInterface $request, ResponseInt
                 'min_year' => $minYear,
                 'max_year' => $maxYear,
                 'min_users_rated' => $minUsersRated,
+                'max_players' => $maxPlayers,
                 'include_compilations' => $includeCompilations,
                 'include_implementations' => $includeImplementations,
                 'include_accessories' => $includeAccessories,

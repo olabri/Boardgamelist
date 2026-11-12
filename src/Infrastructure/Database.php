@@ -213,7 +213,8 @@ final class Database
         int $minUsersRated = 1000,
         bool $includeCompilations = false,
         bool $includeImplementations = false,
-        bool $includeAccessories = false
+        bool $includeAccessories = false,
+        ?int $maxPlayers = null
     ): array {
         $conditions = [
             'is_expansion = 0',
@@ -233,6 +234,9 @@ final class Database
         }
         if (!$includeAccessories) {
             $conditions[] = 'COALESCE(is_accessory, 0) = 0';
+        }
+        if ($maxPlayers !== null) {
+            $conditions[] = '(max_players IS NULL OR max_players <= :max_players_filter)';
         }
         if ($minYear !== null) {
             $conditions[] = 'year_published >= :min_year';
@@ -254,6 +258,9 @@ final class Database
         $statement->bindValue(':min_users_rated', $minUsersRated, PDO::PARAM_INT);
         $statement->bindValue(':limit', $limit, PDO::PARAM_INT);
         $statement->bindValue(':offset', $offset, PDO::PARAM_INT);
+        if ($maxPlayers !== null) {
+            $statement->bindValue(':max_players_filter', $maxPlayers, PDO::PARAM_INT);
+        }
         if ($minYear !== null) {
             $statement->bindValue(':min_year', $minYear, PDO::PARAM_INT);
         }
