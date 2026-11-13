@@ -39,6 +39,7 @@ $app->get('/health', function (ServerRequestInterface $request, ResponseInterfac
         'environment' => $settings['app_env'],
         'database' => 'sqlite',
         'catalog_total' => $stats['total'],
+        'catalog_enriched' => $stats['enriched'],
     ]);
 });
 
@@ -224,6 +225,9 @@ function presentGame(array $game): array
         'bgg_url' => 'https://boardgamegeek.com/boardgame/' . (int) $game['bgg_id'],
         'is_enriched' => !empty($game['details_fetched_at']),
         'needs_enrichment' => empty($game['details_fetched_at'])
+            || $game['weight'] === null
+            || $game['min_players'] === null
+            || $game['max_players'] === null
             || (empty($game['image']) && empty($game['thumbnail'])),
         'details_fetched_at' => $game['details_fetched_at'] ?? null,
         'is_expansion' => (int) ($game['is_expansion'] ?? 0),

@@ -17,7 +17,7 @@ $client = new BggClient($settings['bgg_base_url'], $settings['bgg_api_token']);
 $options = getopt('', [
     'min-rating::', 'limit::', 'offset::', 'delay::',
     'min-year::', 'max-year::',
-    'min-users-rated::', 'missing-image', 'refresh',
+    'min-users-rated::', 'missing-image', 'missing-details', 'refresh',
 ]);
 $minRating = max(0, min(10, (float) ($options['min-rating'] ?? 6.6)));
 $limit = max(1, min(1000, (int) ($options['limit'] ?? 100)));
@@ -28,6 +28,7 @@ $maxYear = queryInteger($options['max-year'] ?? null);
 $minUsersRated = max(0, (int) ($options['min-users-rated'] ?? 500));
 $refresh = isset($options['refresh']);
 $missingImageOnly = isset($options['missing-image']);
+$missingDetails = isset($options['missing-details']);
 $ids = $database->findUnenrichedIds(
     $minRating,
     $limit,
@@ -36,7 +37,8 @@ $ids = $database->findUnenrichedIds(
     $minUsersRated,
     $refresh,
     $offset,
-    $missingImageOnly
+    $missingImageOnly,
+    $missingDetails
 );
 
 if ($ids === []) {

@@ -291,6 +291,27 @@ final class Database
         ];
     }
 
+    public function resetIncompleteDetails(): int
+    {
+        $statement = $this->connection->prepare(<<<'SQL'
+            UPDATE games
+            SET details_fetched_at = NULL
+            WHERE details_fetched_at IS NOT NULL
+              AND is_expansion = 0
+              AND COALESCE(is_accessory, 0) = 0
+              AND COALESCE(is_compilation, 0) = 0
+              AND COALESCE(is_implementation, 0) = 0
+              AND (
+                  weight IS NULL
+                  OR min_players IS NULL
+                  OR max_players IS NULL
+              )
+        SQL);
+        $statement->execute();
+
+        return $statement->rowCount();
+    }
+
     /** @return array<int, int> */
     public function findUnenrichedIds(
         float $minRating,
@@ -300,7 +321,8 @@ final class Database
         int $minUsersRated = 500,
         bool $refresh = false,
         int $offset = 0,
-        bool $missingImageOnly = false
+        bool $missingImageOnly = false,
+        bool $missingDetails = false
     ): array
     {
         $conditions = [
@@ -312,9 +334,14 @@ final class Database
             'COALESCE(is_implementation, 0) = 0',
         ];
         if (!$refresh) {
-            $conditions[] = $missingImageOnly
-                ? '(details_fetched_at IS NULL OR (image IS NULL AND thumbnail IS NULL))'
-                : 'details_fetched_at IS NULL';
+            if ($missingDetails) {
+                $conditions[] = '(details_fetched_at IS NULL OR weight IS NULL OR min_players IS NULL '
+                    . 'OR max_players IS NULL OR (image IS NULL AND thumbnail IS NULL))';
+            } elseif ($missingImageOnly) {
+                $conditions[] = '(details_fetched_at IS NULL OR (image IS NULL AND thumbnail IS NULL))';
+            } else {
+                $conditions[] = 'details_fetched_at IS NULL';
+            }
         }
         if ($minYear !== null) {
             $conditions[] = 'year_published >= :min_year';

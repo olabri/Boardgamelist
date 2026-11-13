@@ -111,10 +111,18 @@ ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-year=2026 --limi
 ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-year=2025 --max-year=2025 --offset=1000 --limit=1000
 ```
 
-The script requests at most 20 IDs per BGG call and waits five seconds between calls to respect the documented API throttling guidance. `--offset` is applied after year/rating/user-count filters and after excluding already enriched games, unless `--refresh` or `--missing-image` is used. Use `--missing-image` to bulk-repair records that have been fetched but still have no image/thumbnail:
+The script requests at most 20 IDs per BGG call and waits five seconds between calls to respect the documented API throttling guidance. `--offset` is applied after year/rating/user-count filters and after excluding already enriched games, unless `--refresh`, `--missing-image`, or `--missing-details` is used. Use `--missing-image` to bulk-repair records that have been fetched but still have no image/thumbnail. Use `--missing-details` when weight or player fields are also missing:
 
 ```sh
 ddev exec php bin/enrich-bgg-details.php --missing-image --min-rating=6.6 --min-users-rated=500 --limit=1000
+ddev exec php bin/enrich-bgg-details.php --missing-details --min-rating=6.6 --min-users-rated=500 --limit=1000
+```
+
+If a previous parser/API response marked records as fetched while leaving weight or player fields empty, reset those cache markers before running normal enrichment:
+
+```sh
+ddev exec php bin/reset-incomplete-enrichment.php
+ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-users-rated=500 --limit=1000
 ```
 
 Year options use `--min-year` and `--max-year`.

@@ -192,7 +192,6 @@ function curlRequest(string $url, string $apiToken): string
     $body = curl_exec($handle);
     $status = (int) curl_getinfo($handle, CURLINFO_RESPONSE_CODE);
     $error = curl_error($handle);
-    curl_close($handle);
 
     if ($body === false) {
         throw new RuntimeException("Download failed: $error");
