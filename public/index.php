@@ -50,7 +50,7 @@ $app->get('/api/catalog', function (ServerRequestInterface $request, ResponseInt
         && in_array(strtolower(trim((string) $maxWeightInput)), ['', 'null'], true);
     $maxWeight = $maxWeightIsUnset
         ? null
-        : max(0.1, (float) ($maxWeightInput ?? 3));
+        : max(0.1, (float) ($maxWeightInput ?? 5));
     $minRating = max(0, min(10, (float) ($params['min_rating'] ?? 6.6)));
     $players = max(1, min(99, (int) ($params['players'] ?? 2)));
     $limit = max(1, min(100, (int) ($params['limit'] ?? 50)));
