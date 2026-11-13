@@ -56,7 +56,7 @@ $app->get('/api/catalog', function (ServerRequestInterface $request, ResponseInt
     $offset = max(0, (int) ($params['offset'] ?? 0));
     $minYear = queryInteger($params['min_year'] ?? 2025);
     $maxYear = queryInteger($params['max_year'] ?? null);
-    $minUsersRated = max(0, (int) ($params['min_users_rated'] ?? 1000));
+    $minUsersRated = max(0, (int) ($params['min_users_rated'] ?? 500));
     $maxPlayers = queryInteger($params['max_players'] ?? null);
     $includeCompilations = filter_var($params['include_compilations'] ?? false, FILTER_VALIDATE_BOOLEAN);
     $includeImplementations = filter_var($params['include_implementations'] ?? false, FILTER_VALIDATE_BOOLEAN);

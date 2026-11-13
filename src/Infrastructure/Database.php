@@ -210,7 +210,7 @@ final class Database
         int $offset = 0,
         ?int $minYear = null,
         ?int $maxYear = null,
-        int $minUsersRated = 1000,
+        int $minUsersRated = 500,
         bool $includeCompilations = false,
         bool $includeImplementations = false,
         bool $includeAccessories = false,
@@ -297,9 +297,10 @@ final class Database
         int $limit,
         ?int $minYear = null,
         ?int $maxYear = null,
-        int $minUsersRated = 1000,
+        int $minUsersRated = 500,
         bool $refresh = false,
-        int $offset = 0
+        int $offset = 0,
+        bool $missingImageOnly = false
     ): array
     {
         $conditions = [
@@ -311,7 +312,9 @@ final class Database
             'COALESCE(is_implementation, 0) = 0',
         ];
         if (!$refresh) {
-            $conditions[] = 'details_fetched_at IS NULL';
+            $conditions[] = $missingImageOnly
+                ? '(details_fetched_at IS NULL OR (image IS NULL AND thumbnail IS NULL))'
+                : 'details_fetched_at IS NULL';
         }
         if ($minYear !== null) {
             $conditions[] = 'year_published >= :min_year';

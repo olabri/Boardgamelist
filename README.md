@@ -53,7 +53,7 @@ The SQLite database is intentionally excluded from Git. A fresh deployment there
 
 `GET /health` checks that the application is running.
 
-`GET /api/catalog` lists the local catalog. Defaults are weight below `3`, rating above `6.6`, playable with `2` players, published from `2025`, and at least `1,000` user ratings. Clear the weight field to remove the weight filter entirely. `max_players` is an optional upper bound on the game’s maximum player count. Games with unknown weight or player counts are retained; they appear with `Weight unknown` or `Players unknown` because missing enriched data does not exclude a catalog row. Each result links to its BGG page. Records without detail data or an image show an enrich button that refreshes the game through `GET /api/games/{id}?refresh=true`. The filters can be changed with `max_weight`, `min_rating`, `players`, `max_players`, `min_year`, `max_year`, `min_users_rated`, `limit`, and `offset`. The response includes `meta.has_more` for pagination.
+`GET /api/catalog` lists the local catalog. Defaults are weight below `3`, rating above `6.6`, playable with `2` players, published from `2025`, and at least `500` user ratings. Clear the weight field to remove the weight filter entirely. `max_players` is an optional upper bound on the game’s maximum player count. Games with unknown weight or player counts are retained; they appear with `Weight unknown` or `Players unknown` because missing enriched data does not exclude a catalog row. Each result links to its BGG page. Records without detail data or an image show an enrich button that refreshes the game through `GET /api/games/{id}?refresh=true`. The filters can be changed with `max_weight`, `min_rating`, `players`, `max_players`, `min_year`, `max_year`, `min_users_rated`, `limit`, and `offset`. The response includes `meta.has_more` for pagination.
 
 Expansions are excluded by default. The optional boolean filters `include_compilations`, `include_implementations`, and `include_accessories` include BGG compilations/Big Box products, implementations/editions, or accessories respectively.
 
@@ -104,14 +104,20 @@ The frontend outlines the weight and player filters because they depend on enric
 To populate the default weight/player filters for the highest-rated catalog games, enrich a bounded batch through the API:
 
 ```sh
-ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-users-rated=1000 --limit=100
+ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-users-rated=500 --limit=100
 # Enrich only games published from 2026 onward:
 ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-year=2026 --limit=200
 # Enrich a slice starting at offset 1000, up to 1000 matching games:
 ddev exec php bin/enrich-bgg-details.php --min-rating=6.6 --min-year=2025 --max-year=2025 --offset=1000 --limit=1000
 ```
 
-The script requests at most 20 IDs per BGG call and waits five seconds between calls to respect the documented API throttling guidance. `--offset` is applied after year/rating/user-count filters and after excluding already enriched games, unless `--refresh` is used.
+The script requests at most 20 IDs per BGG call and waits five seconds between calls to respect the documented API throttling guidance. `--offset` is applied after year/rating/user-count filters and after excluding already enriched games, unless `--refresh` or `--missing-image` is used. Use `--missing-image` to bulk-repair records that have been fetched but still have no image/thumbnail:
+
+```sh
+ddev exec php bin/enrich-bgg-details.php --missing-image --min-rating=6.6 --min-users-rated=500 --limit=1000
+```
+
+Year options use `--min-year` and `--max-year`.
 
 Enrichment skips games that already have `details_fetched_at` by default. Re-fetch existing details only when explicitly requested:
 

@@ -68,7 +68,7 @@
         <label>Results <input name="limit" type="number" min="1" max="100" step="1" value="50"></label>
         <label>Published from <input name="min_year" type="number" min="1900" max="2100" step="1" value="2025" placeholder="Any"></label>
         <label>Published to <input name="max_year" type="number" min="1900" max="2100" step="1" placeholder="Any"></label>
-        <label>Rated by at least <input name="min_users_rated" type="number" min="0" step="100" value="1000"></label>
+        <label>Rated by at least <input name="min_users_rated" type="number" min="0" step="100" value="500"></label>
         <button type="submit">Find games</button>
       </form>
       <div class="options">
@@ -129,7 +129,7 @@
           </div>
           <p class="muted">BGG rank ${escapeHtml(game.rank ?? 'unranked')}</p>
           <div class="card-actions">
-            ${game.needs_enrichment ? `<button class="enrich-button" type="button" data-enrich-id="${escapeHtml(game.id)}" title="Enrich details from BGG" aria-label="Enrich ${escapeHtml(game.name)} from BGG">✦</button>` : ''}
+            ${game.needs_enrichment ? `<button class="enrich-button" type="button" data-enrich-id="${escapeHtml(game.id)}" title="${game.is_enriched ? 'Refresh details and image from BGG' : 'Enrich details from BGG'}" aria-label="${game.is_enriched ? 'Refresh details and image' : 'Enrich'} for ${escapeHtml(game.name)}">✦</button>` : ''}
           </div>
         </div>
       </article>`;
